@@ -6,16 +6,19 @@ describe LocaleSetter::Controller do
   end
 
   class BareController
-    def self.before_filter(name); end
+    def self.prepend_before_filter(name); end
+
+    def params; @params ||= {}; end
+    def params=(hash); @params = hash; end
   end
 
   describe ".included" do
-    it "sets a before filter" do
-      BareController.should_receive(:before_filter).with(:set_locale)
+    it "prepending a before filter" do
+      BareController.should_receive(:prepend_before_filter).with(:set_locale)
       BareController.send(:include, LocaleSetter::Controller)
     end
 
-    it "skips setting the before_filter if not supported" do
+    it "skips prepending the before_filter if not supported" do
       expect{ BareController.send(:include, LocaleSetter::Controller) }.to_not raise_error
     end
   end
@@ -31,12 +34,18 @@ describe LocaleSetter::Controller do
   end
 
   describe "#default_url_options" do
-    it "adds a :locale key" do
-      controller.default_url_options({})[:locale].should be
+    it "adds a :locale key if it presents in params" do
+      controller.params = { :locale => :de }
+      expect { controller.default_url_options({})[:locale] }.to be
+    end
+
+    it "dosn't adds a :locale key if no params present" do
+      controller.params = {}
+      expect { controller.default_url_options({})[:locale] }.not_to be
     end
 
     it "does not require a parameter" do
-      expect{ controller.default_url_options }.to_not raise_error
+      expect { controller.default_url_options }.to_not raise_error
     end
 
     it "builds on passed in options" do

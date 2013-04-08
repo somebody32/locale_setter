@@ -1,14 +1,14 @@
 module LocaleSetter
   module Controller
     def self.included(controller)
-      controller.before_filter :set_locale
+      controller.prepend_before_filter :set_locale
     end
 
     def default_url_options(options = {})
-      if i18n.locale == i18n.default_locale
+      if !params[LocaleSetter.config.url_param].nil?
         options
       else
-        {LocaleSetter.config.url_param => i18n.locale}.merge(options)
+        { LocaleSetter.config.url_param => i18n.locale }.merge(options)
       end
     end
 
