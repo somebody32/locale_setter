@@ -5,7 +5,7 @@ module LocaleSetter
     end
 
     def default_url_options(options = {})
-      if !params[LocaleSetter.config.url_param].nil?
+      if params[LocaleSetter.config.url_param].nil?
         options
       else
         { LocaleSetter.config.url_param => i18n.locale }.merge(options)
